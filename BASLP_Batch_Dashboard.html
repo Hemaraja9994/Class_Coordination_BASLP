@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B.ASLP 2026–27 Batch Coordination Dashboard</title>
+<style>
+  :root{--navy:#1F3864;--blue:#2E5496;--light:#D6E2F0;--grey:#F2F2F2;--salmon:#FBE4D5;--green:#2E7D32;--amber:#B8860B;--red:#C0392B;--border:#cfd8e6;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1c2433;background:#eef2f7;}
+  header{background:var(--navy);color:#fff;padding:14px 22px;}
+  header h1{margin:0;font-size:18px;}
+  header .sub{font-size:12px;opacity:.85;margin-top:2px;}
+  nav{display:flex;gap:4px;background:var(--blue);padding:0 14px;flex-wrap:wrap;}
+  nav button{background:transparent;border:none;color:#dce6f5;padding:11px 16px;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;}
+  nav button.active{color:#fff;border-bottom-color:#fff;font-weight:bold;}
+  main{padding:18px 22px;max-width:1200px;margin:0 auto;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px;}
+  .kpi .n{font-size:26px;font-weight:bold;color:var(--navy);}
+  .kpi .l{font-size:12px;color:#5a6678;margin-top:3px;}
+  .bar{height:8px;background:var(--grey);border-radius:6px;overflow:hidden;margin-top:8px;}
+  .bar>span{display:block;height:100%;background:var(--blue);}
+  .card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;}
+  .card h3{margin:0 0 12px;color:var(--navy);font-size:15px;border-bottom:2px solid var(--blue);padding-bottom:6px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:var(--navy);color:#fff;text-align:left;padding:8px;position:sticky;top:0;}
+  td{padding:7px 8px;border-bottom:1px solid #e7ecf3;}
+  tr:hover td{background:#f6f9fd;}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  input,select,textarea{font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--border);border-radius:6px;}
+  input[type=text]{min-width:200px;}
+  button.btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;}
+  button.btn.alt{background:#fff;color:var(--blue);border:1px solid var(--blue);}
+  button.btn.warn{background:var(--red);}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:bold;}
+  .p-nri{background:var(--salmon);color:#8a3b12;}
+  .p-reg{background:var(--light);color:var(--navy);}
+  .s-done{background:#e3f4e4;color:var(--green);}
+  .s-prog{background:#fbf2dc;color:var(--amber);}
+  .s-pend{background:#fce4e2;color:var(--red);}
+  .linkish{color:var(--blue);cursor:pointer;text-decoration:underline;}
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,30,50,.55);display:none;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto;z-index:50;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:10px;max-width:900px;width:100%;padding:0;overflow:hidden;}
+  .modal .mh{background:var(--navy);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+  .modal .mh h2{margin:0;font-size:16px;}
+  .modal .mb{padding:18px;max-height:72vh;overflow:auto;}
+  .modal .x{background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 14px;}
+  .fld label{display:block;font-size:11px;color:#5a6678;margin-bottom:3px;}
+  .fld input,.fld select,.fld textarea{width:100%;}
+  .sec{margin-top:16px;}
+  .sec h4{margin:0 0 8px;color:var(--blue);font-size:13px;}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:12px;}
+  .checks label{display:flex;gap:7px;align-items:flex-start;padding:3px 0;}
+  .muted{color:#7a8699;font-size:12px;}
+  .savebar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;}
+  .tag{font-size:11px;background:var(--grey);border-radius:5px;padding:2px 7px;color:#445;}
+  @media(max-width:680px){.grid2,.grid3,.checks{grid-template-columns:1fr;}}
+  @media print{nav,header .sub,button,.toolbar,.savebar,.overlay{display:none!important;}header{background:#fff;color:#1c2433;}th{background:#1F3864;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}main{padding:0;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>B.ASLP 2026–27 — Batch Coordination Dashboard</h1>
+  <div class="sub">Department of Audiology &amp; Speech-Language Pathology · Yenepoya Medical College Hospital, Mangaluru · Coordinator: Mr. Hemaraja Nayaka S</div>
+</header>
+<nav id="nav">
+  <button data-tab="dash" class="active">Dashboard</button>
+  <button data-tab="students">Students</button>
+  <button data-tab="academic">Academic (Sem 1 &amp; 2)</button>
+  <button data-tab="notices">Notices</button>
+  <button data-tab="data">Data &amp; Backup</button>
+</nav>
+<main>
+  <section id="tab-dash"></section>
+  <section id="tab-students" style="display:none"></section>
+  <section id="tab-academic" style="display:none"></section>
+  <section id="tab-notices" style="display:none"></section>
+  <section id="tab-data" style="display:none"></section>
+</main>
+
+<div class="overlay" id="overlay"><div class="modal">
+  <div class="mh"><h2 id="mTitle">Student</h2><button class="x" onclick="closeModal()">×</button></div>
+  <div class="mb" id="mBody"></div>
+  <div class="savebar"><span class="muted" id="saveHint"></span><button class="btn alt" onclick="closeModal()">Close</button><button class="btn" onclick="saveStudent()">Save changes</button></div>
+</div></div>
+
+<script>
+// ---------------- data model ----------------
+const PHASES = ["Counselling","Verification","Admission Confirmed","Joined / Inducted","Sem 1","Sem 2"];
+const DOCS = ["Aadhaar","APAAR ID","Secondary ID","10+2/HSE Marks Card","Class 12 Passing Cert","SSLC Marks Card","SSLC Passing Cert","Birth Certificate","Transfer Certificate","Conduct Certificate","Migration Cert","Domicile/Nativity (mandatory)","Income Certificate","Caste/Category Cert","Physical Fitness Cert","Photos (7+2)","NEET Admit & Score","Allotment Order","Extracurricular Proof","Undertaking (Rs.100 stamp)","Two attested sets"];
+const SEED = [
+ ["FATHIMATH SALVA KC","UG/26/10780","Regular"],["CHRIS PINTO","UG/26/14261","Regular"],["Ameena Filza","UG/26/14765","Regular"],["Fathimath Asna","UG/26/12974","Regular"],["Haya Ibrahim Rahmathulla","UG/26/10851","Regular"],["Shimaaz Asiya","UG/26/12748","Regular"],["Alia KT","UG/26/11266","Regular"],["Nadha Fathima","UG/26/10960","Regular"],["Fathima Riza","UG/26/10593","Regular"],["Raniya Nasrin M","UG/26/10792","Regular"],["Nasna Sherin PM","UG/26/13003","Regular"],["PV Fathimathul Jasna Musammilu","UG/26/10481","Regular"],["Sefna K","UG/26/10128","Regular"],
+ ["NIYA SUSAN ABY","UG/26/10119","NRI"],["SALIHA ZAKIR HUSSAIN","UG/26/10494","NRI"],["DEVINA MATHEW","UG/26/13565","NRI"],["Fathima Sheza","UG/26/14838","NRI"],["Aleena O P","UG/26/16799","NRI"],["HIBA FATHIMA","UG/26/11825","NRI"],["FATHIMATH SAFA","UG/26/14416","NRI"],["Noula","UG/26/10381","NRI"]
+];
+const LS_KEY = "baslp_batch_2026_27";
+
+function blankStudent(name,app,stream){
+  return {name,app,stream,phase:"Counselling",admission:"Pending",
+    mobile:"",email:"",parent:"",localGuardian:"",
+    docs:Object.fromEntries(DOCS.map(d=>[d,false])),
+    campusId:"",rollNo:"",libraryCard:"",hostelResident:"No",hostelBlock:"",room:"",
+    ddNo:"",ddDate:"",bank:"",ddBranch:"",amount:"",feeHead:"",receipt:"",feeStatus:"Pending",
+    sem1:{attendance:"",ia:"",exam:"Not started",clinical:"",remarks:""},
+    sem2:{attendance:"",ia:"",exam:"Not started",clinical:"",remarks:""},
+    mentorNotes:""};
+}
+let DATA = load();
+function load(){
+  try{const r=localStorage.getItem(LS_KEY);if(r)return JSON.parse(r);}catch(e){}
+  return {students:SEED.map(s=>blankStudent(...s)),notices:[],updated:new Date().toISOString()};
+}
+function save(){DATA.updated=new Date().toISOString();localStorage.setItem(LS_KEY,JSON.stringify(DATA));}
+
+// ---------------- helpers ----------------
+const $=(s,el=document)=>el.querySelector(s);
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function docPct(st){const v=Object.values(st.docs);return Math.round(100*v.filter(Boolean).length/v.length);}
+function statusPill(p){const cls=p===100?'s-done':p>=40?'s-prog':'s-pend';return `<span class="pill ${cls}">${p}%</span>`;}
+function phasePill(ph){const i=PHASES.indexOf(ph);const cls=i>=3?'s-done':i>=1?'s-prog':'s-pend';return `<span class="pill ${cls}">${esc(ph)}</span>`;}
+// Title-case: ≤2-char words treated as initials and kept uppercase; longer words capitalised normally
+function toTitle(s){return(s||'').replace(/\S+/g,w=>w.length<=2?w.toUpperCase():w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}
+
+// ---------------- tabs ----------------
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  ['dash','students','academic','notices','data'].forEach(t=>$('#tab-'+t).style.display='none');
+  $('#tab-'+b.dataset.tab).style.display='';
+  render(b.dataset.tab);
+});
+
+function render(tab){
+  if(tab==='dash')renderDash();
+  if(tab==='students')renderStudents();
+  if(tab==='academic')renderAcademic();
+  if(tab==='notices')renderNotices();
+  if(tab==='data')renderData();
+}
+
+// ---------------- Dashboard ----------------
+function renderDash(){
+  const s=DATA.students, n=s.length;
+  const admitted=s.filter(x=>x.admission==='Approved').length;
+  const pending=s.filter(x=>x.admission==='Pending').length;
+  const feePaid=s.filter(x=>x.feeStatus==='Paid').length;
+  const hostel=s.filter(x=>x.hostelResident==='Yes').length;
+  const joined=s.filter(x=>PHASES.indexOf(x.phase)>=3).length;
+  const avgDocs=Math.round(s.reduce((a,x)=>a+docPct(x),0)/n);
+  const nri=s.filter(x=>x.stream==='NRI').length;
+  const lowAtt=s.filter(x=>{const a1=parseFloat(x.sem1.attendance),a2=parseFloat(x.sem2.attendance);return (!isNaN(a1)&&a1<75)||(!isNaN(a2)&&a2<75);}).length;
+  const kpi=(num,lab,pct,alert)=>`<div class="kpi" ${alert?'style="border-color:var(--red)"':''}><div class="n" ${alert?'style="color:var(--red)"':''}>${num}</div><div class="l">${lab}</div>${pct!=null?`<div class="bar"><span style="width:${pct}%"></span></div>`:''}</div>`;
+  let html=`<div class="kpis">
+    ${kpi(n,'Total candidates')}
+    ${kpi(admitted+' / '+n,'Admission approved',Math.round(100*admitted/n))}
+    ${kpi(pending,'Pending / deficiency')}
+    ${kpi(avgDocs+'%','Avg documents verified',avgDocs)}
+    ${kpi(feePaid+' / '+n,'Fee paid',Math.round(100*feePaid/n))}
+    ${kpi(joined+' / '+n,'Joined / inducted',Math.round(100*joined/n))}
+    ${kpi(hostel,'Hostel residents')}
+    ${kpi(nri+' / '+(n-nri),'NRI / Regular')}
+    ${kpi(lowAtt,'Attendance &lt;75% ⚠',null,lowAtt>0)}
+  </div>`;
+  // phase pipeline
+  html+=`<div class="card"><h3>Phase pipeline</h3><table><tr><th>Stage</th><th>Students</th><th></th></tr>`;
+  PHASES.forEach(ph=>{const c=s.filter(x=>x.phase===ph).length;html+=`<tr><td>${esc(ph)}</td><td>${c}</td><td style="width:55%"><div class="bar"><span style="width:${Math.round(100*c/n)}%"></span></div></td></tr>`;});
+  html+=`</table></div>`;
+  // attention list
+  const attn=s.filter(x=>{const a1=parseFloat(x.sem1.attendance),a2=parseFloat(x.sem2.attendance);return x.admission!=='Approved'||docPct(x)<100||x.feeStatus!=='Paid'||(!isNaN(a1)&&a1<75)||(!isNaN(a2)&&a2<75);});
+  html+=`<div class="card"><h3>Needs attention (${attn.length})</h3><table><tr><th>Name</th><th>Stream</th><th>Docs</th><th>Admission</th><th>Fee</th><th>Att S1</th><th>Att S2</th><th></th></tr>`;
+  attn.forEach(x=>{const i=DATA.students.indexOf(x);const a1=parseFloat(x.sem1.attendance),a2=parseFloat(x.sem2.attendance);const ac=(v,a)=>!isNaN(a)&&a<75?`<span style="color:var(--red);font-weight:bold">${esc(v)}⚠</span>`:esc(v)||'—';html+=`<tr><td>${esc(toTitle(x.name))}</td><td><span class="pill ${x.stream==='NRI'?'p-nri':'p-reg'}">${x.stream}</span></td><td>${statusPill(docPct(x))}</td><td>${esc(x.admission)}</td><td>${esc(x.feeStatus)}</td><td>${ac(x.sem1.attendance,a1)}</td><td>${ac(x.sem2.attendance,a2)}</td><td><span class="linkish" onclick="openStudent(${i})">open</span></td></tr>`;});
+  if(!attn.length)html+=`<tr><td colspan="8" class="muted">All clear — every student is admitted, documents 100%, fees paid, and attendance on track.</td></tr>`;
+  html+=`</table></div>`;
+  $('#tab-dash').innerHTML=html;
+}
+
+// ---------------- Students ----------------
+function renderStudents(){
+  const html=`<div class="card">
+    <div class="toolbar">
+      <input type="text" id="q" placeholder="Search name / application no." oninput="renderStudentRows()">
+      <select id="fStream" onchange="renderStudentRows()"><option value="">All streams</option><option>Regular</option><option>NRI</option></select>
+      <select id="fPhase" onchange="renderStudentRows()"><option value="">All phases</option>${PHASES.map(p=>`<option>${p}</option>`).join('')}</select>
+      <span class="muted" style="margin-left:auto">Click a row to open the full record</span>
+    </div>
+    <div style="max-height:62vh;overflow:auto"><table id="stTable"><thead><tr><th>#</th><th>Name</th><th>Application</th><th>Stream</th><th>Phase</th><th>Docs</th><th>Admission</th><th>Fee</th></tr></thead><tbody id="stBody"></tbody></table></div>
+  </div>`;
+  $('#tab-students').innerHTML=html;renderStudentRows();
+}
+function renderStudentRows(){
+  const q=($('#q').value||'').toLowerCase(),fs=$('#fStream').value,fp=$('#fPhase').value;
+  let rows='';
+  DATA.students.forEach((x,i)=>{
+    if(q&&!(x.name.toLowerCase().includes(q)||x.app.toLowerCase().includes(q)))return;
+    if(fs&&x.stream!==fs)return;if(fp&&x.phase!==fp)return;
+    rows+=`<tr style="cursor:pointer" onclick="openStudent(${i})"><td>${i+1}</td><td>${esc(toTitle(x.name))}</td><td>${esc(x.app)}</td><td><span class="pill ${x.stream==='NRI'?'p-nri':'p-reg'}">${x.stream}</span></td><td>${phasePill(x.phase)}</td><td>${statusPill(docPct(x))}</td><td>${esc(x.admission)}</td><td>${esc(x.feeStatus)}</td></tr>`;
+  });
+  $('#stBody').innerHTML=rows||`<tr><td colspan="8" class="muted">No matches</td></tr>`;
+}
+
+// ---------------- Academic ----------------
+function renderAcademic(){
+  let html=`<div class="card"><h3>First Year — Semester 1 &amp; 2 tracking</h3>
+    <p class="muted">Quick view of attendance, internal assessment and exam status. <span style="color:var(--red);font-weight:bold">Red ⚠</span> = attendance below 75% (university minimum). Open a student to edit per-semester details and clinical postings.</p>
+    <div style="max-height:64vh;overflow:auto"><table><thead><tr><th>Name</th><th>Stream</th><th>Sem1 Att%</th><th>Sem1 IA</th><th>Sem1 Exam</th><th>Sem2 Att%</th><th>Sem2 IA</th><th>Sem2 Exam</th><th></th></tr></thead><tbody>`;
+  DATA.students.forEach((x,i)=>{
+    const a1=parseFloat(x.sem1.attendance),a2=parseFloat(x.sem2.attendance);
+    const low=(v,a)=>v&&!isNaN(a)&&a<75?'style="color:var(--red);font-weight:bold"':'';
+    html+=`<tr>
+      <td>${esc(toTitle(x.name))}</td><td><span class="pill ${x.stream==='NRI'?'p-nri':'p-reg'}">${x.stream}</span></td>
+      <td ${low(x.sem1.attendance,a1)}>${esc(x.sem1.attendance)}${x.sem1.attendance&&!isNaN(a1)&&a1<75?' ⚠':''}  </td>
+      <td>${esc(x.sem1.ia)}</td><td>${esc(x.sem1.exam)}</td>
+      <td ${low(x.sem2.attendance,a2)}>${esc(x.sem2.attendance)}${x.sem2.attendance&&!isNaN(a2)&&a2<75?' ⚠':''}  </td>
+      <td>${esc(x.sem2.ia)}</td><td>${esc(x.sem2.exam)}</td>
+      <td><span class="linkish" onclick="openStudent(${i})">edit</span></td></tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  $('#tab-academic').innerHTML=html;
+}
+
+// ---------------- Notices ----------------
+function renderNotices(){
+  let html=`<div class="card"><h3>Add notice / announcement</h3>
+    <div class="toolbar"><input type="text" id="ntext" placeholder="Notice text (e.g., Orientation on 20 June, 10 AM, Seminar Hall)" style="flex:1;min-width:260px">
+    <button class="btn" onclick="addNotice()">Post</button></div></div>
+    <div class="card"><h3>Notice log (${DATA.notices.length})</h3><table><tr><th style="width:160px">Date</th><th>Notice</th><th></th></tr>`;
+  DATA.notices.slice().reverse().forEach((nt,ri)=>{const idx=DATA.notices.length-1-ri;html+=`<tr><td>${esc(new Date(nt.t).toLocaleString())}</td><td>${esc(nt.text)}</td><td><span class="linkish" onclick="delNotice(${idx})">delete</span></td></tr>`;});
+  if(!DATA.notices.length)html+=`<tr><td colspan="3" class="muted">No notices yet</td></tr>`;
+  html+=`</table></div>`;
+  $('#tab-notices').innerHTML=html;
+}
+function addNotice(){const t=$('#ntext').value.trim();if(!t)return;DATA.notices.push({t:Date.now(),text:t});save();renderNotices();}
+function delNotice(i){DATA.notices.splice(i,1);save();renderNotices();}
+
+// ---------------- Data & Backup ----------------
+function renderData(){
+  $('#tab-data').innerHTML=`
+    <div class="card" style="border-color:#C0392B">
+      <h3 style="color:var(--red)">⚠ Privacy &amp; data security notice</h3>
+      <p class="muted" style="line-height:1.7">This file stores student PII — Aadhaar numbers, contact details, financial records.
+      <strong>Data never leaves your computer.</strong> However, you must:
+      <br>• Keep this <code>.html</code> file and all JSON backups on a <strong>secure, access-controlled drive</strong> (not a public shared folder).
+      <br>• Export a JSON backup before every big editing session and store it in a password-protected location.
+      <br>• Do not email the file or upload it to unauthenticated cloud storage.
+      <br>Last auto-save: <strong>${esc(new Date(DATA.updated).toLocaleString())}</strong></p>
+    </div>
+    <div class="card"><h3>Backup &amp; restore</h3>
+    <p class="muted">Data is saved in <em>this browser only</em>. Faculty do not share data automatically — use Export to maintain one master copy on the department shared drive and Import it on another machine.</p>
+    <div class="toolbar">
+      <button class="btn" onclick="exportJSON()">⬇ Export data (JSON backup)</button>
+      <button class="btn alt" onclick="document.getElementById('imp').click()">⬆ Import data (JSON)</button>
+      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(event)">
+      <button class="btn alt" onclick="exportCSV()">⬇ Export students (CSV / Excel)</button>
+      <button class="btn alt" onclick="window.print()">Print view</button>
+      <button class="btn warn" onclick="resetAll()">Reset to seed roster</button>
+    </div></div>
+    <div class="card"><h3>About</h3><p class="muted">B.ASLP 2026–27 Batch Coordination Dashboard &mdash; single-file offline app for faculty use. No network calls. No login required. Yenepoya Medical College Hospital, Dept. of Audiology &amp; Speech-Language Pathology. Coordinator: Mr. Hemaraja Nayaka S.</p></div>`;
+}
+function exportJSON(){const b=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});dl(b,`BASLP_batch_backup_${new Date().toISOString().slice(0,10)}.json`);}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.students)throw 0;DATA=d;save();alert('Imported '+d.students.length+' students.');render('data');}catch(_){alert('Invalid backup file.');}};r.readAsText(f);}
+function exportCSV(){
+  const cols=['name','app','stream','phase','admission','mobile','email','parent','campusId','rollNo','libraryCard','hostelResident','hostelBlock','room','ddNo','ddDate','bank','ddBranch','amount','feeHead','receipt','feeStatus'];
+  const docCols=DOCS.map(d=>'doc:'+d);
+  let csv=[...cols,...docCols,'docsVerified%','sem1Att','sem1IA','sem1Exam','sem2Att','sem2IA','sem2Exam'].join(',')+'\n';
+  DATA.students.forEach(x=>{
+    const row=cols.map(c=>q(x[c]));
+    DOCS.forEach(d=>row.push(x.docs[d]?'Yes':'No'));
+    row.push(docPct(x));
+    row.push(q(x.sem1.attendance),q(x.sem1.ia),q(x.sem1.exam),q(x.sem2.attendance),q(x.sem2.ia),q(x.sem2.exam));
+    csv+=row.join(',')+'\n';
+  });
+  dl(new Blob([csv],{type:'text/csv'}),`BASLP_students_${new Date().toISOString().slice(0,10)}.csv`);
+}
+function q(v){v=(v==null?'':String(v));return '"'+v.replace(/"/g,'""')+'"';}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+function resetAll(){if(confirm('Reset all data back to the seed roster? This erases your entries in this browser. Export a backup first.')){DATA={students:SEED.map(s=>blankStudent(...s)),notices:[],updated:new Date().toISOString()};save();render('data');}}
+
+// ---------------- Student modal ----------------
+let curIdx=-1;
+function openStudent(i){curIdx=i;const x=DATA.students[i];
+  $('#mTitle').textContent=toTitle(x.name)+'  ·  '+x.app;
+  const f=(lab,key,val,type='text')=>`<div class="fld"><label>${lab}</label><input data-k="${key}" type="${type}" value="${esc(val)}"></div>`;
+  const sel=(lab,key,val,opts)=>`<div class="fld"><label>${lab}</label><select data-k="${key}">${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select></div>`;
+  let docchecks=DOCS.map(d=>`<label><input type="checkbox" data-doc="${esc(d)}" ${x.docs[d]?'checked':''}> ${esc(d)}</label>`).join('');
+  $('#mBody').innerHTML=`
+   <div class="sec"><h4>Profile &amp; status</h4><div class="grid3">
+     ${sel('Phase','phase',x.phase,PHASES)}
+     ${sel('Admission','admission',x.admission,['Pending','Approved','Rejected'])}
+     ${sel('Stream','stream',x.stream,['Regular','NRI'])}
+     ${f('Student mobile','mobile',x.mobile)}
+     ${f('Email','email',x.email)}
+     ${f('Parent/Guardian (name & no.)','parent',x.parent)}
+     ${f('Local guardian (name & no.)','localGuardian',x.localGuardian)}
+   </div></div>
+   <div class="sec"><h4>Document verification (${docPct(x)}%)</h4><div class="checks">${docchecks}</div></div>
+   <div class="sec"><h4>Day-of-joining issuance</h4><div class="grid3">
+     ${f('Campus ID No.','campusId',x.campusId)}
+     ${f('Roll / Register No.','rollNo',x.rollNo)}
+     ${f('Library Card No.','libraryCard',x.libraryCard)}
+     ${sel('Hostel resident','hostelResident',x.hostelResident,['No','Yes'])}
+     ${f('Hostel block','hostelBlock',x.hostelBlock)}
+     ${f('Room No.','room',x.room)}
+   </div></div>
+   <div class="sec"><h4>Fee — Demand Draft</h4><div class="grid3">
+     ${f('DD No.','ddNo',x.ddNo)}${f('DD Date','ddDate',x.ddDate)}${f('Bank','bank',x.bank)}
+     ${f('Branch','ddBranch',x.ddBranch)}${f('Amount (Rs.)','amount',x.amount)}${f('Fee head','feeHead',x.feeHead)}
+     ${f('Receipt No.','receipt',x.receipt)}${sel('Payment status','feeStatus',x.feeStatus,['Pending','Partial','Paid'])}
+   </div></div>
+   <div class="sec"><h4>Semester 1</h4><div class="grid3">
+     ${f('Attendance %','sem1.attendance',x.sem1.attendance)}${f('Internal assessment','sem1.ia',x.sem1.ia)}
+     ${sel('University exam','sem1.exam',x.sem1.exam,['Not started','Appeared','Passed','Reattempt'])}
+     ${f('Clinical posting','sem1.clinical',x.sem1.clinical)}
+   </div><div class="fld" style="margin-top:8px"><label>Sem 1 remarks</label><textarea data-k="sem1.remarks" rows="2">${esc(x.sem1.remarks)}</textarea></div></div>
+   <div class="sec"><h4>Semester 2</h4><div class="grid3">
+     ${f('Attendance %','sem2.attendance',x.sem2.attendance)}${f('Internal assessment','sem2.ia',x.sem2.ia)}
+     ${sel('University exam','sem2.exam',x.sem2.exam,['Not started','Appeared','Passed','Reattempt'])}
+     ${f('Clinical posting','sem2.clinical',x.sem2.clinical)}
+   </div><div class="fld" style="margin-top:8px"><label>Sem 2 remarks</label><textarea data-k="sem2.remarks" rows="2">${esc(x.sem2.remarks)}</textarea></div></div>
+   <div class="sec"><h4>Mentor notes</h4><div class="fld"><textarea data-k="mentorNotes" rows="3">${esc(x.mentorNotes)}</textarea></div></div>`;
+  $('#saveHint').textContent='';
+  $('#overlay').classList.add('open');
+}
+function setPath(obj,path,val){const p=path.split('.');let o=obj;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;}
+function saveStudent(){if(curIdx<0)return;const x=DATA.students[curIdx];
+  $('#mBody').querySelectorAll('[data-k]').forEach(el=>setPath(x,el.dataset.k,el.value));
+  $('#mBody').querySelectorAll('[data-doc]').forEach(el=>x.docs[el.dataset.doc]=el.checked);
+  save();$('#saveHint').textContent='Saved ✓';
+  const active=document.querySelector('#nav button.active').dataset.tab;render(active);
+  setTimeout(()=>{$('#saveHint').textContent='';},1200);
+}
+function closeModal(){$('#overlay').classList.remove('open');curIdx=-1;}
+$('#overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});
+
+// init
+render('dash');
+</script>
+</body>
+</html>
